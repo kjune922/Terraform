@@ -1,0 +1,13 @@
+# 테라폼 실행 바이너리 및 플러그인
+.terraform/
+
+# 로컬 상태 파일 (민감한 정보가 포함될 수 있음)
+*.tfstate
+*.tfstate.backup
+*.tfvars
+*.tfvars.json
+
+# 로그 및 환경 변수
+.terraform.tfstate.lock.info
+crash.log
+.env
