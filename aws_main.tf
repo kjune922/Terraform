@@ -92,3 +92,31 @@ resource "aws_security_group" "portfolio_sg" {
 	Name = "portfolio-sg"
 	}
 }
+
+# EC2 인스턴스 생성 ㄱㄱ
+resource "aws_instance" "portfolio_app" {
+	ami = "ami-0c55b159cbfafe1f0"
+	instance_type = "t2.micro"
+	
+
+	# 부팅시 자동 실행될 쉘 스크립트
+	user_data = <<-EOF
+		#!/bin/bash
+		echo "Hello,CloudEngineer! This is my first portfolio server!">
+		nohup python3 -m http.server 80 &
+		EOF
+	# 변경시마다 인스턴스를 새로 생성하도록 강제 ㄱㄱ
+	user_data_replace_on_change = true
+
+	# 어제 만든 서브넷과 보안 그룹 연결
+	subnet_id = aws_subnet.public_subnet.id
+	vpc_security_group_ids = [aws_security_group.portfolio_sg.id]
+
+	# 위에서 만든 키 페어 이름
+	key_name = "portfolio_key"
+	tags = {
+	Name = "Portfolio-App-Server"
+	}
+}
+
+

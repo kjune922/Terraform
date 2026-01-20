@@ -11,3 +11,7 @@
 .terraform.tfstate.lock.info
 crash.log
 .env
+
+# AWS CLI 인스톨 파일들
+aws/
+awscliv2.zip
