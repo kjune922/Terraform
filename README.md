@@ -26,4 +26,22 @@
 - **CLI 연동:** LocalStack 환경에서 AWS CLI v2를 수동 설치하고 `alias` 설정을 통해 개발 효율성 증대
 
 ## 🧠 Algorithm Study
-- **Greedy & Heap:** 그리디 알고리즘의 최적 부분 구조를 이해하고, `heapq`를 활용하여 '카드 정렬하기' 등 복잡도가 높은 문제들을 효율적으로 해결 ($O(N \log N)$)
+- **Greedy & Heap:** 그리디 알고리즘의 최적 부분 구조를 이해하고, `heapq`를 활용하여 '카드 정렬하기' 등 복잡도가 
+높은 문제들을 효율적으로 해결 ($O(N \log N)$)
+
+## 🚀 Update (2026-01-21 ~ 01-22)
+
+### 1. Infrastructure Automation (IaC)
+단순 인프라 생성을 넘어, 서버 부팅과 동시에 애플리케이션 환경이 완성되는 **Bootstrap 자동화**를 구현했습니다.
+- **Docker & Docker-Compose 자동 설치:** `user_data` 스크립트를 통해 인스턴스 생성 시 최신 Docker 엔진과 Compose 라이브러리를 자동 배포.
+- **Web Service 배포 자동화:** Nginx 컨테이너를 부팅 직후 자동 실행하여 인프라와 서비스의 결합도 최적화.
+
+
+
+### 2. Verification & Troubleshooting (Engineering Excellence)
+LocalStack(Simulator) 환경의 한계를 극복하기 위해 다음과 같은 **Metadata 검증 전략**을 사용했습니다.
+- **문제 상황:** LocalStack 무료 버전 특성상 실제 컨테이너 내부 스크립트 실행(Docker-in-Docker)은 제한됨.
+- **해결 방안:** AWS CLI(`awslocal`)를 사용하여 EC2 인스턴스의 `userData` 속성을 추출하고, 이를 **Base64 디코딩**하여 설계도(Terraform)와 실제 주입된 실행 지침서가 일치하는지 데이터 무결성 검증 완료.
+- **주요 명령어:**
+  ```bash
+  awslocal ec2 describe-instance-attribute --instance-id [ID] --attribute userData
