@@ -95,28 +95,44 @@ resource "aws_security_group" "portfolio_sg" {
 
 # EC2 인스턴스 생성 ㄱㄱ
 resource "aws_instance" "portfolio_app" {
-	ami = "ami-0c55b159cbfafe1f0"
-	instance_type = "t2.micro"
-	
+  ami                         = "ami-0c55b159cbfafe1f0"
+  instance_type               = "t2.micro"
+  subnet_id                   = aws_subnet.public_subnet.id
+  vpc_security_group_ids      = [aws_security_group.portfolio_sg.id]
+  key_name                    = "portfolio_key"
+  user_data_replace_on_change = true # 코드가 바뀌면 인스턴스를 새로 생성함
 
-	# 부팅시 자동 실행될 쉘 스크립트
-	user_data = <<-EOF
-		#!/bin/bash
-		echo "Hello,CloudEngineer! This is my first portfolio server!">
-		nohup python3 -m http.server 80 &
-		EOF
-	# 변경시마다 인스턴스를 새로 생성하도록 강제 ㄱㄱ
-	user_data_replace_on_change = true
+  user_data = <<-EOF
+              #!/bin/bash
+              # 1. 시스템 패키지 업데이트 및 필요 도구 설치
+              sudo apt-get update -y
+              sudo apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release
 
-	# 어제 만든 서브넷과 보안 그룹 연결
-	subnet_id = aws_subnet.public_subnet.id
-	vpc_security_group_ids = [aws_security_group.portfolio_sg.id]
+              # 2. Docker 공식 GPG 키 추가 및 저장소 등록
+              curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+              echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
-	# 위에서 만든 키 페어 이름
-	key_name = "portfolio_key"
-	tags = {
-	Name = "Portfolio-App-Server"
-	}
+              # 3. Docker 엔진 설치
+              sudo apt-get update -y
+              sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+
+              # 4. Docker 서비스 시작 및 부팅 시 자동 실행 설정
+              sudo systemctl start docker
+              sudo systemctl enable docker
+
+              # 5. (선택) ubuntu 사용자가 sudo 없이 docker를 쓸 수 있게 권한 부여
+              sudo usermod -aG docker ubuntu
+              
+	      
+              # 6. Docker compose 설치 ㄱㄱ
+	      sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+              sudo chmod +x /usr/local/bin/docker-compose
+	     
+              # 7. 테스트용 Nginx 컨테이너 실행 ㄱㄱ
+              docker run -d -p 80:80 --name my-web nginx
+	      EOF
+  tags = {
+    Name = "Portfolio-Docker-Server"
+  }
 }
-
 
