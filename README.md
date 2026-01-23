@@ -45,3 +45,37 @@ LocalStack(Simulator) 환경의 한계를 극복하기 위해 다음과 같은 *
 - **주요 명령어:**
   ```bash
   awslocal ec2 describe-instance-attribute --instance-id [ID] --attribute userData
+
+
+
+
+🚀 2026-01-23: Algorithm & Cloud Infrastructure Milestone
+
+🧠 1. Algorithm: Dijkstra (최단 경로)
+가중치가 있는 그래프에서 시작점으로부터 모든 노드까지의 최단 거리를 구하는 알고리즘을 구현했습니다.
+
+핵심 설계 논리
+우선순위 큐(Priority Queue): 파이썬의 heapq를 사용하여 거리가 가장 짧은 노드를 $O(\log V)$의 시간 복잡도로 추출합니다.
+
+가지치기(Pruning): 큐에서 꺼낸 거리 값이 이미 기록된 최단 거리(distance[now])보다 클 경우 무시하여 중복 연산을 획기적으로 줄였습니다.
+
+시간 복잡도: 전체 알고리즘은 $O(E \log V)$의 효율성을 가집니다.
+
+🏗️ 2. Infrastructure as Code: Terraform & Docker
+수동으로 서버를 설정하던 방식을 벗어나, **코드에 의한 인프라 관리(IaC)**를 구현했습니다.
+
+주요 구현 내용
+Dockerizing: Python(Flask) 애플리케이션을 가벼운 python:3.9-slim 베이스 이미지로 컨테이너화했습니다.
+
+Layer Optimization: requirements.txt를 먼저 복사하여 종속성 설치 단계를 캐싱함으로써 빌드 속도를 최적화했습니다.
+
+Bootstrap Automation: Terraform의 user_data를 활용해 EC2 인스턴스 생성 시 아래 과정이 완전 자동화되도록 설계했습니다.
+
+Docker & Docker Compose 엔진 설치
+
+Application Source Code 생성 및 환경 구성
+
+Docker Image 빌드 및 컨테이너 서비스 런칭 (Port 80)
+
+
+
