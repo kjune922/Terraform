@@ -127,10 +127,35 @@ resource "aws_instance" "portfolio_app" {
               # 6. Docker compose 설치 ㄱㄱ
 	      sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
               sudo chmod +x /usr/local/bin/docker-compose
-	     
-              # 7. 테스트용 Nginx 컨테이너 실행 ㄱㄱ
-              docker run -d -p 80:80 --name my-web nginx
-	      EOF
+	      
+		#7. 애플리케이션 파일 생성(2026-01-23)
+		cat <<EOT>> app.py
+from flask import Flask
+app = Flask(__name__)
+@app.route('/')
+def hello():
+	return "안녕, 이건 테라폼으로 설계한 자동화도커 컨테이너앱이야"
+if __name__ == "__main__":
+	app.run(host="0.0.0.0",port=5000)
+EOT
+		cat <<EOT>> requirements.txt
+Flask
+EOT
+		
+		cat <<EOT>> Dockerfile
+FROM python:3.9-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY . .
+CMD ["python","app.py"]
+EOT
+
+	# 8. 이미지 빌드 및 컨테이너 실행
+	docker build -t my-python-app .
+	docker run -d -p 80:5000 --name 내 파이썬웹서버with테라폼
+	EOF
+
   tags = {
     Name = "Portfolio-Docker-Server"
   }
