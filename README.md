@@ -77,5 +77,5 @@ Application Source Code 생성 및 환경 구성
 
 Docker Image 빌드 및 컨테이너 서비스 런칭 (Port 80)
 
-
-
+Docker 로컬스텍 명령어
+docker run --rm -it -p 4566:4566 -p 4510-4559:4510-4559 localstack/localstack
