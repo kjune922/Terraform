@@ -43,7 +43,9 @@ resource "aws_instance" "lee_app" {
   user_data_replace_on_change = true
 
 
-  user_data = file("${path.root}/userdata.sh")
+  user_data = templatefile("${path.root}/userdata.sh",{
+    db_private_ip = var.db_private_ip # 외부에서 받아온 진짜ip
+    })
 
   tags = {
   Name = "${var.project_name}"

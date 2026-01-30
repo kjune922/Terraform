@@ -156,3 +156,71 @@ Backend: Flask (Python)
 Database: MySQL 8.0
 
 Cloud Simulation: LocalStack
+
+
+#
+--------------------------------------------------
+2026-01-30
+--------------------------------------------------
+
+🚀 Terraform 기반 AWS 3-Tier 아키텍처 자동화 프로젝트
+본 프로젝트는 Terraform을 사용하여 확장성 있고 보안이 강화된 3-Tier 웹 애플리케이션 인프라를 코드로 구축(IaC)한 포트폴리오입니다. 단순 리소스 생성을 넘어, 모듈 간 데이터 연계를 통한 완전 자동화 프로비저닝을 구현하는 데 중점을 두었습니다.
+
+🏗️ 1. 아키텍처 개요
+본 인프라는 외부 인터넷과 통신하는 **Public 영역(Web Tier)**과 데이터 보호를 위해 격리된 **Private 영역(Database Tier)**으로 나뉩니다.
+
+VPC: 전용 가상 네트워크 구축 및 퍼블릭/프라이빗 서브넷 분리.
+
+Web Tier: Public Subnet 내 EC2 인스턴스 (Docker 기반 Flask App).
+
+DB Tier: Private Subnet 내 EC2 인스턴스 (MySQL Server). 인터넷 게이트웨이와 연결되지 않아 외부 접근이 원천 차단됩니다.
+
+🛠️ 2. 핵심 기술적 성취 (Technical Highlights)
+🔗 모듈 간 데이터 바인딩 (Output - Root - Variable 파이프라인)
+테라폼의 모듈 캡슐화를 유지하면서, 리소스 간 의존성을 해결하기 위해 데이터 브로커링(Brokering) 구조를 설계했습니다.
+
+배달 A (Security): EC2 모듈에서 생성된 Security Group ID를 Output으로 추출하여 DB 모듈의 인바운드 규칙(Variable)으로 주입. (IP가 아닌 Identity 기반 보안 구현)
+
+배달 B (Connectivity): DB 모듈 생성 시 할당되는 Private IP를 Output으로 추출하여 Web 모듈의 userdata에 동적으로 주입.
+
+⚙️ templatefile을 통한 완전 자동화 프로비저닝
+인프라 배포 시점에 결정되는 DB 서버의 IP 주소를 Web 서버의 환경 설정에 자동으로 반영하기 위해 테라폼의 templatefile 함수를 사용했습니다.
+
+userdata.sh 내 가상 변수(${db_private_ip}) 배치.
+
+테라폼 실행 시 DB의 실제 IP를 해당 위치에 치환하여 주입.
+
+결과: 인프라 생성과 동시에 애플리케이션이 DB 서버를 즉시 찾아 연결되는 Zero-config 배포 달성.
+
+🛡️ 계층적 보안 설계
+Network Level: Private Subnet 배치를 통해 DB 서버의 물리적 노출 차단.
+
+Application Level: DB 보안 그룹 규칙에 오직 **"Web 보안 그룹 이름표(ID)"**를 가진 트래픽만 허용하도록 설정하여 VPC 내부의 침입 시도까지 방어.
+
+📂 3. 프로젝트 구조 (Directory Structure)
+Plaintext
+
+.
+├── aws_main.tf         # Root Configuration (모듈 조립 및 데이터 중개)
+├── variables.tf        # 전역 변수 설정
+├── userdata.sh         # Web 서버 프로비저닝 템플릿 (Docker/App 설정)
+├── db_setup.sh         # DB 서버 프로비저닝 스크립트 (MySQL 설정)
+└── modules/
+    ├── vpc/            # 네트워크 리소스 (VPC, Subnet, RouteTable)
+    ├── ec2/            # Web 서버 리소스 (Security Group, Instance)
+    └── db/             # DB 서버 리소스 (Security Group, Instance)
+📝 4. 주요 학습 내용 및 회고
+의존성 관리: 리소스 간 데이터를 주고받는 것만으로 테라폼이 생성 순서를 스스로 판단하는 암시적 의존성(Implicit Dependency) 원리를 이해함.
+
+IaC의 가치: 수동으로 IP를 확인하고 설정 파일을 수정하는 번거로움 없이, 코드 한 줄로 전체 인프라와 앱 설정이 동기화되는 자동화의 강력함을 경험함.
+
+문제 해결 능력: 모듈화 과정에서 발생하는 Unsupported argument 에러 등을 해결하며 입력(Variable)과 출력(Output) 포트 매칭의 중요성을 체득함.
+
+🚀 실행 방법
+LocalStack 또는 AWS CLI 환경 준비.
+
+terraform init : 모듈 및 프로바이더 초기화.
+
+terraform plan : 실행 계획 확인 및 데이터 주입 경로 검증.
+
+terraform apply : 인프라 배포.

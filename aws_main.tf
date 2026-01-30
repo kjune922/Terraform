@@ -32,4 +32,15 @@ module "ec2" {
   subnet_id = module.vpc.public_subnet_id
   ubuntu_ami = var.ubuntu_ami
   instance_type = var.instance_type
+  db_private_ip = module.db.db_private_ip
+}
+
+module "db" {
+  source = "./modules/db"
+  project_name = var.project_name
+  vpc_id = module.vpc.vpc_id
+  private_subnet_id = module.vpc.private_subnet_id
+  ubuntu_ami = var.ubuntu_ami
+  instance_type = var.instance_type
+  web_security_id = module.ec2.web_sg_id
 }

@@ -28,10 +28,10 @@ import mysql.connector
 app = Flask(__name__)
 
 db_config = {
-    "host": os.getenv("DB_HOST","db"),
-    "user": os.getenv("DB_USER","admin"),
+    "host": os.getenv("DB_HOST","${db_private_ip}"),
+    "user": os.getenv("DB_USER","kjune922"),
     "password": os.getenv("DB_PASS","password123!"),
-    "database": os.getenv("DB_NAME","portfolio_db")
+    "database": os.getenv("DB_NAME","lee_db")
 }
 
 def get_db_connection():
@@ -84,28 +84,15 @@ EOT
 cat <<EOT > docker-compose.yml
 version: "3.8"
 services:
-  db:
-    image: mysql:8.0
-    restart: always
-    environment:
-      MYSQL_DATABASE: portfolio_db
-      MYSQL_USER: admin
-      MYSQL_PASSWORD: password123!
-      MYSQL_ROOT_PASSWORD: password123!
-    ports:
-      - "3306:3306"
-
   web:
     build: .
     ports:
       - "80:5000"
-    depends_on:
-      - db
     environment:
-      DB_HOST: db
-      DB_NAME: portfolio_db
-      DB_USER: admin
-      DB_PASS: password123!
+      DB_HOST: "${db_private_ip}"
+      DB_NAME: "lee_db"
+      DB_USER: "kjune922"
+      DB_PASS: "password123!"
 EOT
 
 # 7. 서비스 실행 (전체 자동화)
