@@ -21,3 +21,8 @@ variable "private_subnet_cidr" {
   default = "10.0.2.0/24"
 }
 
+variable "private_subnet_cidr_2" {
+  description = "프라이빗 서브넷2의 IP범위"
+  type = string
+  default = "10.0.3.0/24"
+}

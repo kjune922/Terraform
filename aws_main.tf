@@ -11,6 +11,7 @@ provider "aws" {
   endpoints {
     ec2 = "http://localhost:4566"
     sts = "http://localhost:4566"
+    rds = "http://localhost:4566"
   }
 }
 
@@ -22,6 +23,8 @@ module "vpc" {
   project_name = var.project_name
   vpc_cidr = var.vpc_cidr
   public_subnet_cidr = var.public_subnet_cidr
+  private_subnet_cidr = var.private_subnet_cidr
+  private_subnet_cidr_2 = var.private_subnet_cidr_2
 }
 
 # 2. EC2 호출
@@ -35,6 +38,7 @@ module "ec2" {
   db_private_ip = module.db.db_private_ip
 }
 
+# 3. DB 호출 (일단그냥둠)
 module "db" {
   source = "./modules/db"
   project_name = var.project_name
@@ -44,3 +48,15 @@ module "db" {
   instance_type = var.instance_type
   web_security_id = module.ec2.web_sg_id
 }
+
+# 4. RDS 호출
+module "rds" {
+  source = "./modules/rds"
+  project_name = var.project_name
+  db_username = "kjune922"
+  db_password = "dlrudalswns2!"
+  vpc_id = module.vpc.vpc_id
+  private_subnet_ids = [module.vpc.private_subnet_id,module.vpc.private_subnet_2_id]
+  web_security_id = module.ec2.web_sg_id
+}
+  
