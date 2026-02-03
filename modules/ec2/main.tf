@@ -40,12 +40,11 @@ resource "aws_instance" "lee_app" {
   subnet_id = var.subnet_id
   vpc_security_group_ids = [aws_security_group.lee_sg.id]
   key_name = "lee_key"
-  user_data_replace_on_change = true
+  associate_public_ip_address = true
 
-
-  user_data = templatefile("${path.root}/userdata.sh",{
-    db_private_ip = var.db_private_ip # 외부에서 받아온 진짜ip
-    })
+# localstack -> AWS 옮기면서 db관련 올 주석처리
+#  user_data_replace_on_change = true
+#  user_data = templatefile("${path.root}/userdata.sh")
 
   tags = {
   Name = "${var.project_name}"
