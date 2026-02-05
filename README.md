@@ -246,3 +246,28 @@ AMI Region Specificity: 동일한 OS라도 리전마다 AMI ID가 다르다는 �
 Public vs Private Networking: IGW를 통한 외부 통신(Public IP/DNS)과 VPC 내부망을 통한 안전한 데이터베이스 통신(Private IP/DNS)의 차이점 및 보안적 이점.
 
 Immutable Infrastructure: 기존 리소스의 속성 변경 시(예: 퍼블릭 IP 추가) 테라폼이 이를 삭제 후 재생성하는 '불변 인프라'의 동작 원리 체득.
+
+----------------------------------------
+2026-02-05
+----------------------------------------
+# 1. terraform apply 이후에 AWS에 원격접속하기
+
+우선 terraform 루트폴더에 내 key.pem파일 넣기
+
+ssh -i lee_key.pem ubuntu@<내 EC2 퍼블릭IPv4 IP>
+
+# 2. RDS에 접속해보기, private구간
+
+우선 mysql -h <복사한 엔드포인트주소> -u 내 사용자명(kjune922) -p 입력
+
+여기서 접속이 안되는데, 그 이유는 현재 rds 보안그룹에 3306을 설정안해줘서그럼
+
+그래서 aws콘솔에서 rds에 들어간다음에, 연결 및 보안에서 보안그룹 들어가서
+인바운드 그룹 변경 눌러서
+3306을 추가해주는데, 돋보기 부분에서 네트워크 허락범위를 내가 이전에 만든 보안그룹 lee-fullstack-sg가 있음, 그걸 타이핑해서 설정하고 완료
+
+그리고 다시하면 mysql에 원격접속이 가능해짐
+
+--->> 외부인터넷과 격리된 DB에 내가 만든 서버를 통해서만 안전하게 접근하는 3-Tier 아키텍처
+
+
