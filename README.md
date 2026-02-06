@@ -270,4 +270,92 @@ ssh -i lee_key.pem ubuntu@<내 EC2 퍼블릭IPv4 IP>
 
 --->> 외부인터넷과 격리된 DB에 내가 만든 서버를 통해서만 안전하게 접근하는 3-Tier 아키텍처
 
+-------------------------------------------
+2926-02-06
+-------------------------------------------
+
+aws ec2 원격접속하기
+
+명령어: ssh -i <내 .pem키> ubuntu@<내 ec2퍼블릭ip>
+
+이제 데이터베이스 접속
+
+명령어: mysql -h <복사한 rds엔드포인트주소> -u kjune922 -p
+
+--------------------------------------------
+원격접속이후에 이제 mysql을 가상환경에서 실행
+
+--------------------------------------------
+# 1. 패키지 리스트 업데이트 (설치 전 필수)
+sudo apt update
+
+# 2. MySQL 클라이언트 설치 (명령어 창에서 DB 접속용)
+sudo apt install mysql-client -y
+
+# 3. 파이썬 패키지 매니저(pip) 설치
+sudo apt install python3-pip -y
+
+-----------------------------------------------
+# 4. 가상환경 도구 설치
+sudo apt install python3-venv -y
+
+# 5. 'myenv'라는 이름의 가상환경 만들기
+python3 -m venv myenv
+
+# 6. 가상환경 속으로 들어가기 (프롬프트 앞에 (myenv)가 떠야 함)
+source myenv/bin/activate
+
+# 7. 이제 가상환경 안에서 PyMySQL 설치 (sudo 안 붙여도 됨!)
+pip install pymysql
+
+가상환경 pymsql main.py생성 후 코딩
+
+import pymysql
+import os
+
+# 1. 환경 변수에서 값 가져와서 '변수'에 저장하기
+host = os.environ.get("DB_HOST")
+user = os.environ.get("DB_USER")
+password = os.environ.get("DB_PASS")
+database = os.environ.get("DB_NAME")
+
+# 2. DB 연결하기
+connection = pymysql.connect(
+    host=host,
+    user=user,
+    password=password,
+    database=database,
+    charset='utf8mb4',
+    cursorclass=pymysql.cursors.DictCursor # 결과를 딕셔너리 형태로 받기
+)
+
+try:
+    # 3. 커서(명령을 내릴 도구) 생성
+    with connection.cursor() as cursor:
+        # 4. SQL 실행
+        sql = "SELECT count(*) as cnt FROM study_log;"
+        cursor.execute(sql)
+
+        # 5. 결과 한 줄 가져오기
+        result = cursor.fetchone()
+        print(f"현재 DB에 저장된 공부 기록 개수: {result['cnt']}")
+
+finally:
+    # 6. 연결 닫기 (오류가 나도 반드시 닫도록 finally 사용)
+    connection.close()
+
+그리고 
+mydb안에는
+
+CREATE TABLE study_log (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    content VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_VALUE
+);
+
+-- 테스트용 데이터 하나 넣기
+INSERT INTO study_log (content) VALUES ('오늘도 테라폼과 파이썬');
+
+이렇게 넣어서 테스트해보기
+
 
