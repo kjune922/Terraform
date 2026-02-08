@@ -23,9 +23,9 @@ module "ec2" {
   source = "./modules/ec2"
   project_name = var.project_name
   vpc_id = module.vpc.vpc_id
-  subnet_id = module.vpc.public_subnet_id
   ubuntu_ami = var.ubuntu_ami
   instance_type = var.instance_type
+  public_subnet_ids = [module.vpc.public_subnet_id,module.vpc.public_subnet_2_id]
 }
 
 
