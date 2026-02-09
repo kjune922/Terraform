@@ -11,3 +11,7 @@ variable "ubuntu_ami" {
   type = string
 }
 
+variable "db_endpoint" {  
+  type = string
+}
+

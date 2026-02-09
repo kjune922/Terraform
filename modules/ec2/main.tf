@@ -115,7 +115,7 @@ resource "aws_launch_template" "lee_lt" {
   image_id = var.ubuntu_ami
   instance_type = var.instance_type
   key_name = "lee_key"
-  user_data = filebase64("${path.module}/userdata.sh")
+  user_data = base64encode(templatefile("${path.module}/userdata.sh",{db_endpoint = var.db_endpoint}))
 
   network_interfaces {
     associate_public_ip_address = true

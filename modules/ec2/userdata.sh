@@ -19,6 +19,8 @@ cd /home/ubuntu/app
 cat <<EOF > main.py
 from fastapi import FastAPI
 import uvicorn
+import pymysql
+
 
 app = FastAPI()
 
@@ -26,13 +28,36 @@ app = FastAPI()
 def read_root():
     return {"message": "Hello, Gyeong jun! Your ALB is working!"}
 
+# 테라폼에서 넘겨받을 DB정보
+DB_CONFIG = {
+  "host": "${db_endpoint}",
+  "user": "kjune922",
+  "password": "dlrudalswns2!",
+  "db": "mydb"
+}
+
+@app.get("/db-test")
+def test_db():
+  try:
+    # DB연결테스트
+    conn = pymysql.connect(**DB_CONFIG)
+    conn.close()
+    return {"status": "성공", "message": "RDS 연결 성공적"}
+  except Exception as e:
+    return {"status": "실패", "error": str(e)}
+
+
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=80)
 EOF
 
 # 4. 가상환경 생성 및 설치
 python3 -m venv venv
-./venv/bin/pip install fastapi uvicorn
+./venv/bin/pip install fastapi uvicorn pymysql
+
+# 권한설정
+chown -R ubuntu:ubuntu /home/ubuntu/app
 
 # 5. 앱 실행 (백그라운드)
 sudo ./venv/bin/python3 main.py > /home/ubuntu/app.log 2>&1 &

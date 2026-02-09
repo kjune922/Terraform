@@ -25,6 +25,7 @@ module "ec2" {
   vpc_id = module.vpc.vpc_id
   ubuntu_ami = var.ubuntu_ami
   instance_type = var.instance_type
+  db_endpoint = module.rds.db_endpoint
   public_subnet_ids = [module.vpc.public_subnet_id,module.vpc.public_subnet_2_id]
 }
 
